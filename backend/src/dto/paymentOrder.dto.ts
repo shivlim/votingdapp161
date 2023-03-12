@@ -7,3 +7,14 @@ export class RequestTokensDTO{
 export class MintTokenResponse{
     result:string;
 }
+
+export class CastVoteRequestDTO{
+    proposalIndex:number;
+    votingPower:number;
+    privateKey:string;
+}
+
+
+export class CastVoteResponse{
+    result:string;
+}
