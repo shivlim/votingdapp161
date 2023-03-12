@@ -5,7 +5,7 @@ import * as tokenJson from './assets/MyToken.json';
 import * as ballotContractJson from './assets/Ballot.json';
 import { ConfigService } from '@nestjs/config';
 
-const TOKEN_CONTRACT_ADDRESS = "0x656453b5aCc73c142d83e9420B785C5d1EE2b87e";
+const TOKEN_CONTRACT_ADDRESS = "0x501761b004AA21C8045b00E54925e855D553e83b";
 const BALLOT_CONTRACT_ADDRESS = "0xa61958f81918672533CF4cCa4acfca38833c4392";
 
 @Injectable()
@@ -77,5 +77,4 @@ constructor(private configService: ConfigService){
     const winnerName = ethers.utils.parseBytes32String(winnerAddress)
     return winnerName;
   }
-  
 }
