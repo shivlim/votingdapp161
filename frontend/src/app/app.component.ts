@@ -143,7 +143,6 @@ export class AppComponent {
   createWallet(){
     this.userWallet = new Wallet(privateKey, this.provider);
     this.userWallet.getBalance().then((balanceBN) =>{
-      console.log("HERE")
       const balanceStr = utils.formatEther(balanceBN);
       this.userEthBalance = parseFloat(balanceStr)
     });

@@ -17,6 +17,13 @@
         </button>
         <p>Amount:</p>
         <input #mintAmount type="number" min="0" max="10" class="input"/>
+        <br />
+        <button type="button" class="btn btn-danger btn-lg px-4 gap-3 my-4" (click)="delegate(delegatee.value)" >
+          Delegate
+        </button>
+        <br />
+        <p>To:</p>
+        <input #delegatee type="string" class="input"/>
       </div>
     </div>
     <div class="card mt-4 mx-auto" *ngIf="tokenContractAddress">
