@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { Contract, ethers, Wallet } from 'ethers';
 import {Provider} from "@ethersproject/providers";
 import * as tokenJson from './assets/MyToken.json';
-import { ConfigModule,ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 
 const CONTRACT_ADDRESS = "0x501761b004AA21C8045b00E54925e855D553e83b";
 
