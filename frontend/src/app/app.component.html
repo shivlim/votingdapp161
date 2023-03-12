@@ -6,6 +6,7 @@
     <button type="button" class="btn btn-secondary btn-lg px-4 gap-3 my-4" (click)="createWallet()" >
       {{userWallet ? "Create another":"Create"}} Wallet
     </button>
+
     <div class="card mt-4 mx-auto" *ngIf="userWallet">
       <div class="card-body">
         <h5 class="card-title">User Wallet</h5>
@@ -13,20 +14,24 @@
         <p class="card-text">Balance : {{userEthBalance}} ETH</p>
         <p class="card-text">Balance : {{userTokenBalance}} MTK</p>
        
-        <button *ngIf="mintAmount.value"  type="button" class="btn btn-danger btn-lg px-4 gap-3 my-4" (click)="requestTokens(mintAmount.value)" >
+        <button   type="button" class="btn btn-danger btn-lg px-4 gap-3 my-4" (click)="requestTokens(mintAmount.value)" >
           Request Tokens
         </button>
         <p>Amount:</p>
         <input #mintAmount type="number" min="0" max="10" class="input"/>
       </div>
     </div>
+
+
     <div class="card mt-4 mx-auto" *ngIf="tokenContractAddress">
       <div class="card-body">
-        <h5 class="card-title">Token COntract</h5>
+        <h5 class="card-title">Token Contract</h5>
         <h6 class="card-subtitle mb-2 text-muted">{{tokenContractAddress}}</h6>
         <p class="card-text">Total Supply : {{ tokenTotalSupply }} MTK</p>
       </div>
     </div>
+
+
   </div>
     <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4">
       <button type="button" class="btn btn-primary btn-lg px-4 gap-3" (click)="syncBlock()" >Sync</button>

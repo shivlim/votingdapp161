@@ -17,15 +17,16 @@ export class AppComponent {
   blockNumber:number  = 0;
   provider : ethers.providers.BaseProvider;
   userWallet: Wallet | undefined;
-  userEthBalance: number | undefined;
-  userTokenBalance: number | undefined;
+  userEthBalance: number | string | undefined;
+  userTokenBalance: string | undefined;
   tokenContractAddress: string | undefined;
   tokenContract: Contract|undefined;
   tokenTotalSupply: number | undefined | string;
 
   constructor(private http: HttpClient){
    
-    this.provider = ethers.getDefaultProvider("goerli");
+    //this.provider = ethers.getDefaultProvider("goerli");
+    this.provider = new ethers.providers.AlchemyProvider("goerli", "E37deHZ162KUnEYdn7nVrp7IANH504OF");
     //setInterval(()=>{this.blockNumber++},100)
    
   }
@@ -67,16 +68,32 @@ export class AppComponent {
 
 
   requestTokens(amount:string){
+    this.userTokenBalance = "minting..."
     const body = {address:this.userWallet?.address,amount:amount};
     console.log('requested ' + amount + ' tokens for address '+ this.userWallet?.address);
     return this.http.post<{result:string}>(MINT_URL,body).subscribe((result) =>{
       console.log('tx hash ' + result.result);
+      this.updateTokenBalance();
     })
     //console.log('TODO request tokens from backend passing address')
   }
 
+  async updateTokenBalance(){
+    if(! this.tokenContractAddress) return;
+    this.tokenContract = new Contract(
+      this.tokenContractAddress,
+      tokenJson.abi,
+      this.userWallet ?? this.provider
+    );
+    
+   this.tokenContract['balanceOf'](this.userWallet?.address).then((balance:any) =>{
+    console.log('token balance is '+ balance)
+    this.userTokenBalance = balance;
+    });
+  }
+
   createWallet(){
-    this.userWallet =Wallet.createRandom().connect(this.provider);
+    this.userWallet = Wallet.createRandom().connect(this.provider);
     this.userWallet.getBalance().then((balanceBN) =>{
       const balanceStr = utils.formatEther(balanceBN);
       this.userEthBalance = parseFloat(balanceStr)

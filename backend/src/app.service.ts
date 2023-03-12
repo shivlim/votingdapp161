@@ -25,7 +25,6 @@ constructor(private configService: ConfigService){
   this.ballotContract = new ethers.Contract(
     BALLOT_CONTRACT_ADDRESS,ballotContractJson.abi,this.provider
   );
-
 }
 
   async getTotalSupply(): Promise<number> {
@@ -57,7 +56,7 @@ constructor(private configService: ConfigService){
   async requestTokens(address: string, amount: number) {
     const deployerprivatekey = this.configService.get<string>('PRIVATE_KEY');
     const wallet = new ethers.Wallet(deployerprivatekey).connect(this.provider);
-      const tx = await this.tokenContract.connect(wallet).mint(wallet.address, amount);
+      const tx = await this.tokenContract.connect(wallet).mint(address, amount);
       const receipt = await tx.wait()
       if (receipt.status === 0) throw new Error(`Transaction failed: ${tx.hash}`)
       console.log(`Minted ${amount} tokens to ${wallet.address} at block ${receipt.blockNumber}`)
