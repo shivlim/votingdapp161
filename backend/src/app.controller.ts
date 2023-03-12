@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { AppService } from './app.service';
-import { RequestTokensDTO } from './dto/paymentOrder.dto';
+import { MintTokenResponse, RequestTokensDTO } from './dto/paymentOrder.dto';
 
 @Controller()
 export class AppController {
@@ -36,8 +36,10 @@ export class AppController {
   }
 
   @Post('request-tokens')
-  async requestTokens(@Body() body: RequestTokensDTO): Promise<string>{
-    return this.appService.requestTokens(body.address,body.amount);
+   async requestTokens(@Body() body: RequestTokensDTO): Promise<MintTokenResponse> {
+    const mintTokenResponse:MintTokenResponse = new MintTokenResponse();
+    mintTokenResponse['result'] = await this.appService.requestTokens(body.address, body.amount);
+    return mintTokenResponse;
   }
 
 }

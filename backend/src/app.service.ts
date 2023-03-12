@@ -51,7 +51,7 @@ constructor(private configService: ConfigService){
     return this.contract.address;
   }
 
-  async requestTokens(address: string, amount: number): Promise<string> {
+  async requestTokens(address: string, amount: number) {
     const deployerprivatekey = this.configService.get<string>('PRIVATE_KEY');
     const provider:Provider = new ethers.providers.AlchemyProvider("goerli", this.configService.get<string>('ALCHEMY_API_KEY'));
 
