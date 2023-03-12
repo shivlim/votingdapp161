@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { AppService } from './app.service';
-import { CastVoteRequestDTO, CastVoteResponse, MintTokenResponse, RequestTokensDTO } from './dto/paymentOrder.dto';
+import { CastVoteRequestDTO, CastVoteResponse, MintTokenResponse, RequestTokensDTO, WinningProposalResponse } from './dto/paymentOrder.dto';
 
 @Controller()
 export class AppController {
@@ -48,6 +48,13 @@ export class AppController {
     const castVoteResponse:CastVoteResponse = new CastVoteResponse();
     castVoteResponse['result'] = await this.appService.castVote(body.privateKey,body.proposalIndex, body.votingPower);
     return castVoteResponse;
+  }
+
+  @Get('winning-proposal')
+  async getWinningProposal(): Promise<WinningProposalResponse> {
+    const winningProposalResponse:WinningProposalResponse = new WinningProposalResponse();
+    winningProposalResponse['result'] = await this.appService.getWinningProposal();
+    return winningProposalResponse;
   }
   
 

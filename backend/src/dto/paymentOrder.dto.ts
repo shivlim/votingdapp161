@@ -18,3 +18,7 @@ export class CastVoteRequestDTO{
 export class CastVoteResponse{
     result:string;
 }
+
+export class WinningProposalResponse{
+    result:string;
+}

@@ -11,6 +11,7 @@ const BALLOT_CONTRACT_ADDRESS = "0xa61958f81918672533CF4cCa4acfca38833c4392";
 
 @Injectable()
 export class AppService {
+ 
   provider: ethers.providers.Provider;
   tokenContract: ethers.Contract;
   ballotContract: ethers.Contract;
@@ -71,6 +72,14 @@ constructor(private configService: ConfigService){
     if (receipt.status === 0) throw new Error(`Transaction failed: ${tx.hash}`)
     console.log(`casted vote at block ${receipt.blockNumber}`)
     return tx.hash;
+  }
+
+  async getWinningProposal(): Promise<string> {
+    const deployerprivatekey = this.configService.get<string>('PRIVATE_KEY');
+    const wallet = new ethers.Wallet(deployerprivatekey).connect(this.provider);
+    const winnerAddress = await this.ballotContract.connect(wallet).winnerName();
+    const winnerName = ethers.utils.parseBytes32String(winnerAddress)
+    return winnerName;
   }
   
 }
