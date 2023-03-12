@@ -1,12 +1,11 @@
 /* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
-import { Contract, ethers, Wallet } from 'ethers';
-import {Provider} from "@ethersproject/providers";
+import { ethers, utils } from 'ethers';
 import * as tokenJson from './assets/MyToken.json';
 import * as ballotContractJson from './assets/Ballot.json';
 import { ConfigService } from '@nestjs/config';
 
-const TOKEN_CONTRACT_ADDRESS = "0x501761b004AA21C8045b00E54925e855D553e83b";
+const TOKEN_CONTRACT_ADDRESS = "0x656453b5aCc73c142d83e9420B785C5d1EE2b87e";
 const BALLOT_CONTRACT_ADDRESS = "0xa61958f81918672533CF4cCa4acfca38833c4392";
 
 @Injectable()
@@ -17,7 +16,6 @@ export class AppService {
   ballotContract: ethers.Contract;
 
 constructor(private configService: ConfigService){
-   //this.provider = ethers.getDefaultProvider('goerli');
    this.provider = new ethers.providers.AlchemyProvider("goerli", this.configService.get<string>('ALCHEMY_API_KEY'));
    this.tokenContract = new ethers.Contract(
     TOKEN_CONTRACT_ADDRESS,tokenJson.abi,this.provider
@@ -25,19 +23,22 @@ constructor(private configService: ConfigService){
   this.ballotContract = new ethers.Contract(
     BALLOT_CONTRACT_ADDRESS,ballotContractJson.abi,this.provider
   );
-
 }
 
   async getTotalSupply(): Promise<number> {
-
     const totalSupplyBN = await this.tokenContract.totalSupply();
     const totalSupplyString =  ethers.utils.formatEther(totalSupplyBN);
     const totalSupply = parseFloat(totalSupplyString);
     return totalSupply;
   }
 
-  async getAllowance(from:string, to:string): Promise<number> {
+  async getBalance(address: string): Promise<string> {
+    const balance = await this.tokenContract.balanceOf(address);
+    console.log(`Requested balance for ${address}, balance = ${balance.toString()}`)
+    return utils.formatEther(balance);
+  }
 
+  async getAllowance(from:string, to:string): Promise<number> {
     const allowanceBN = await this.tokenContract.allowance(from,to);
     const allowanceString =  ethers.utils.formatEther(allowanceBN);
     const allowanceNumber = parseFloat(allowanceString);
@@ -54,23 +55,18 @@ constructor(private configService: ConfigService){
     return this.tokenContract.address;
   }
 
+  getBallotContractAddress(): string {
+    return this.ballotContract.address
+  }
+
   async requestTokens(address: string, amount: number) {
     const deployerprivatekey = this.configService.get<string>('PRIVATE_KEY');
     const wallet = new ethers.Wallet(deployerprivatekey).connect(this.provider);
-      const tx = await this.tokenContract.connect(wallet).mint(wallet.address, amount);
-      const receipt = await tx.wait()
-      if (receipt.status === 0) throw new Error(`Transaction failed: ${tx.hash}`)
-      console.log(`Minted ${amount} tokens to ${wallet.address} at block ${receipt.blockNumber}`)
-
-    return tx.hash;
-  }
-
-  async castVote(privateKey: string, proposalIndex: number, votingPower: number){
-    const wallet = new ethers.Wallet(privateKey).connect(this.provider);
-    const tx = await this.ballotContract.connect(wallet).vote(proposalIndex, votingPower);
+    const tx = await this.tokenContract.connect(wallet).mint(address, amount);
     const receipt = await tx.wait()
     if (receipt.status === 0) throw new Error(`Transaction failed: ${tx.hash}`)
-    console.log(`casted vote at block ${receipt.blockNumber}`)
+    console.log(`Minted ${amount} tokens to ${address} at block ${receipt.blockNumber}`)
+
     return tx.hash;
   }
 
