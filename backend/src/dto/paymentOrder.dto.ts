@@ -2,6 +2,7 @@
 export class RequestTokensDTO{
     address:string;
     amount:number;
+    signature:string;
 }
 
 export class MintTokenResponse{

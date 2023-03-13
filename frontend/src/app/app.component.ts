@@ -58,7 +58,7 @@ export class AppComponent {
       this.ballotContract = new Contract(
         this.ballotContractAddress,
         ballotJSON.abi,
-        this.userWallet || this.provider 
+        this.userWallet || this.provider
       )
     })
     if (this.userWallet) {
@@ -88,14 +88,21 @@ export class AppComponent {
   }
 
   requestTokens(amount:string){
-    const body = {address:this.userWallet?.address, amount:amount};
+    const signature = await this.userWallet?.signMessage(amount);
+    const body = {
+      address: this.userWallet?.address,
+      amount: amount,
+      signature: signature
+    };
     console.log('requested ' + amount + ' tokens for address '+ this.userWallet?.address);
-    return this.http.post<{result:string}>(`${API_URL}/request-tokens`,body).subscribe((result) =>{
-      console.log('tx hash ' + result.result);
-    })
+    return this.http
+      .post<{result:string}>(`${API_URL}/request-tokens`,body)
+      .subscribe((result) =>{
+        console.log('tx hash ' + result.result);
+    });
   }
 
-  // function to vote 
+  // function to vote
   async vote(_proposalIndex: string, _weight: string) {
     if (!this.ballotContract) {
       alert('You need to sync first')
@@ -139,7 +146,7 @@ export class AppComponent {
       this.winningProposal = winnerName;
     }
   }
-  
+
   createWallet(){
     this.userWallet = new Wallet(privateKey, this.provider);
     this.userWallet.getBalance().then((balanceBN) =>{
