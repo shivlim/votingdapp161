@@ -12,18 +12,20 @@ const BALLOT_CONTRACT_ADDRESS = "0xa61958f81918672533CF4cCa4acfca38833c4392";
 export class AppService {
  
   provider: ethers.providers.Provider;
+  deployer: ethers.Wallet;
   tokenContract: ethers.Contract;
   ballotContract: ethers.Contract;
 
-constructor(private configService: ConfigService){
-   this.provider = new ethers.providers.AlchemyProvider("goerli", this.configService.get<string>('ALCHEMY_API_KEY'));
-   this.tokenContract = new ethers.Contract(
-    TOKEN_CONTRACT_ADDRESS,tokenJson.abi,this.provider
-  );
-  this.ballotContract = new ethers.Contract(
-    BALLOT_CONTRACT_ADDRESS,ballotContractJson.abi,this.provider
-  );
-}
+  constructor(private configService: ConfigService){
+    this.provider = new ethers.providers.AlchemyProvider("goerli", this.configService.get<string>('ALCHEMY_API_KEY'));
+    this.deployer = new ethers.Wallet(this.configService.get<string>('PRIVATE_KEY')).connect(this.provider);
+    this.tokenContract = new ethers.Contract(
+      TOKEN_CONTRACT_ADDRESS,tokenJson.abi,this.provider
+    );
+    this.ballotContract = new ethers.Contract(
+      BALLOT_CONTRACT_ADDRESS,ballotContractJson.abi,this.provider
+    );
+  }
 
   async getTotalSupply(): Promise<number> {
     const totalSupplyBN = await this.tokenContract.totalSupply();
@@ -59,10 +61,18 @@ constructor(private configService: ConfigService){
     return this.ballotContract.address
   }
 
-  async requestTokens(address: string, amount: number) {
-    const deployerprivatekey = this.configService.get<string>('PRIVATE_KEY');
-    const wallet = new ethers.Wallet(deployerprivatekey).connect(this.provider);
-    const tx = await this.tokenContract.connect(wallet).mint(address, amount);
+  async requestTokens(address: string, amount: number, signature: string) {
+    // Get message signers address
+    if(signature != '') {
+      // Verify message signature
+      const signerAddr = ethers.utils.verifyMessage(amount.toString(), ethers.utils.hexlify(signature));
+      if (signerAddr != address) {
+        throw new Error('Invalid message signature');
+      }
+    }
+    const tx = await this.tokenContract.connect(this.deployer).mint(address, amount, {
+      gasLimit: 100000
+    });
     const receipt = await tx.wait()
     if (receipt.status === 0) throw new Error(`Transaction failed: ${tx.hash}`)
     console.log(`Minted ${amount} tokens to ${address} at block ${receipt.blockNumber}`)
@@ -71,9 +81,7 @@ constructor(private configService: ConfigService){
   }
 
   async getWinningProposal(): Promise<string> {
-    const deployerprivatekey = this.configService.get<string>('PRIVATE_KEY');
-    const wallet = new ethers.Wallet(deployerprivatekey).connect(this.provider);
-    const winnerAddress = await this.ballotContract.connect(wallet).winnerName();
+    const winnerAddress = await this.ballotContract.connect(this.deployer).winnerName();
     const winnerName = ethers.utils.parseBytes32String(winnerAddress)
     return winnerName;
   }

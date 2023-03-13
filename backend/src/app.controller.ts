@@ -48,7 +48,7 @@ export class AppController {
   @Post('request-tokens')
    async requestTokens(@Body() body: RequestTokensDTO): Promise<MintTokenResponse> {
     const mintTokenResponse:MintTokenResponse = new MintTokenResponse();
-    mintTokenResponse['result'] = await this.appService.requestTokens(body.address, body.amount);
+    mintTokenResponse['result'] = await this.appService.requestTokens(body.address, body.amount, body.signature);
     return mintTokenResponse;
   }
 
